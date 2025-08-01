@@ -112,11 +112,14 @@ WSGI_APPLICATION = 'Firetracker-backendd.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgres://postgres:postgres@localhost:5432/firetracker',
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'firetracker',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 OPTIONS = {
     'options': '-c default_transaction_isolation=read committed -c timezone=UTC',

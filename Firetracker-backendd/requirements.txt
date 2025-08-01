@@ -6,3 +6,4 @@ whitenoise
 gunicorn
 django-leaflet
 dj-database-url
+django-gis
