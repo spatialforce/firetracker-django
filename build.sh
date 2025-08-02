@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# Install system dependencies for GDAL
+# Add GIS repository for GDAL
+add-apt-repository -y ppa:ubuntugis/ppa
 apt-get update
-apt-get install -y --no-install-recommends \
-    binutils \
-    libgdal-dev \
-    gdal-bin \
-    libproj-dev \
-    proj-bin \
-    python3-dev
 
-# Verify GDAL installation
+# Install EXACT versions matching your Windows setup
+apt-get install -y \
+    libgdal-dev=3.4.3+dfsg-1build4 \
+    gdal-bin=3.4.3+dfsg-1build4 \
+    libgeos-dev=3.10.2-1 \
+    proj-bin=8.2.1-1ubuntu1
+
+# Verify installation
+echo "=== GDAL VERSION ==="
 gdalinfo --version
+echo "=== LIBRARY PATHS ==="
+ls -la /usr/lib/x86_64-linux-gnu/libgdal*
+ls -la /usr/lib/x86_64-linux-gnu/libgeos*
 
-# Install Python dependencies
+# Python setup
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Apply database migrations
+# Database setup
 python manage.py migrate
-
-# Collect static files
 python manage.py collectstatic --no-input

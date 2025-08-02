@@ -1,28 +1,28 @@
 services:
   - type: web
     name: firetracker-web
+    runtime: python
+    pythonVersion: "3.10.13"
+    buildCommand: |
+      chmod +x build.sh
+      ./build.sh
+    startCommand: "gunicorn Firetracker-backendd.wsgi:application"
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.10.13"
       - key: GDAL_LIBRARY_PATH
-        value: "/usr/lib/libgdal.so"
+        value: "/usr/lib/x86_64-linux-gnu/libgdal.so.32"
       - key: GEOS_LIBRARY_PATH
-        value: "/usr/lib/libgeos_c.so"
-      - key: DISABLE_COLLECTSTATIC
-        value: "0"
-      - key: DB_NAME
-        fromDatabase:
-          name: firetracker-db
-          property: name
-      - key: DB_USER
-        fromDatabase:
-          name: firetracker-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: firetracker-db
-          property: password
+        value: "/usr/lib/x86_64-linux-gnu/libgeos_c.so.1"
+      - key: PROJ_LIB
+        value: "/usr/share/proj"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
       - key: DB_HOST
         fromDatabase:
           name: firetracker-db
           property: host
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: firetracker-db
+          property: password
