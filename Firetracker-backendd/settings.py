@@ -11,7 +11,10 @@ import platform
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security settings
+# =====================
+# CORE SETTINGS
+# =====================
+
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-only')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
@@ -22,7 +25,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
 
-# Application definition
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.admin',
@@ -31,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.gis',
+    'django.contrib.gis',  # GeoDjango
     'corsheaders',
     'rest_framework',
     'Firetracker',
@@ -70,23 +72,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Firetracker-backendd.wsgi.application'
 
-# Database Configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DB_NAME', 'firetracker'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-    }
-}
+# =====================
+# DATABASE & GDAL CONFIG
+# =====================
 
 # GDAL Configuration
 if os.environ.get('RENDER'):
     # Production configuration for Render
-    GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
-    GEOS_LIBRARY_PATH = '/usr/lib/libgeos_c.so'
+    GDAL_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgdal.so.32'
+    GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so.1'
+    os.environ['PROJ_LIB'] = '/usr/share/proj'
 else:
     # Development configuration for Windows
     OSGEO4W = r"C:\OSGeo4W"
@@ -97,7 +92,24 @@ else:
     os.environ['PROJ_LIB'] = OSGEO4W + r"\share\proj"
     os.environ['PATH'] = OSGEO4W + r"\bin;" + os.environ['PATH']
 
-# Password validation
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('DB_NAME', 'firetracker'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'options': '-c search_path=public,postgis'
+        }
+    }
+}
+
+# =====================
+# AUTH & SECURITY
+# =====================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -113,42 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://spatialforce.co.zw",
-]
-CORS_ALLOW_CREDENTIALS = True
-
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
-
-# Security settings for production
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
@@ -157,24 +133,38 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_BROWSER_XSS_FILTER = True
-    X_FRAME_OPTIONS = 'DENY'
 
-# Logging configuration
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
+# =====================
+# INTERNATIONALIZATION
+# =====================
+
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# =====================
+# STATIC & MEDIA FILES
+# =====================
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# =====================
+# THIRD-PARTY SETTINGS
+# =====================
+
+# CORS Settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://spatialforce.co.zw",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # Django REST Framework
 REST_FRAMEWORK = {
@@ -188,10 +178,37 @@ REST_FRAMEWORK = {
 
 # Leaflet configuration
 LEAFLET_CONFIG = {
-    'DEFAULT_CENTER': (-19.0154, 29.1549),  # Zimbabwe approximate center
+    'DEFAULT_CENTER': (-19.0154, 29.1549),  # Zimbabwe coordinates
     'DEFAULT_ZOOM': 6,
     'MIN_ZOOM': 3,
     'MAX_ZOOM': 18,
     'SCALE': 'both',
     'ATTRIBUTION_PREFIX': 'Firetracker GIS',
+}
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO' if DEBUG else 'WARNING',
+    },
 }
