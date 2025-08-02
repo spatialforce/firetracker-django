@@ -1,22 +1,25 @@
 #!/usr/bin/env bash
-# Exit on error
 set -o errexit
 
-# Install system dependencies
+# Install system dependencies for GDAL
 apt-get update
-apt-get install -y \
+apt-get install -y --no-install-recommends \
     binutils \
-    libproj-dev \
-    gdal-bin \
     libgdal-dev \
+    gdal-bin \
+    libproj-dev \
+    proj-bin \
     python3-dev
 
-# Upgrade pip and install requirements
+# Verify GDAL installation
+gdalinfo --version
+
+# Install Python dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 
+# Apply database migrations
+python manage.py migrate
+
 # Collect static files
 python manage.py collectstatic --no-input
-
-# Apply database migrations (if needed)
-# python manage.py migrate
