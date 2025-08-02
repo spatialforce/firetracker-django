@@ -18,12 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-only')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    'firetracker-web.onrender.com',
-    'spatialforce.co.zw',
-    'localhost',
-    '127.0.0.1'
-]
+ALLOWED_HOSTS = ['*'] 
 
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
