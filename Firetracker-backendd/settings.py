@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =====================
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-only')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Will be False by default
 
 ALLOWED_HOSTS = ['*'] 
 
@@ -170,6 +170,18 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'firetracker-cache',
+    }
+}
+
+# API settings
+API_VERSION = '1.0.0'
+WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
 
 # Leaflet configuration
 LEAFLET_CONFIG = {
