@@ -4,16 +4,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from Firetracker import views  # Import views from your app
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
-    # Admin interface at /admin/
     path('admin/', admin.site.urls),
-    
-    # API endpoints under /api/
     path('api/', include('Firetracker.urls')),
-    
-    # Root URL shows API documentation
-   path('', views.home, name='home'),
+    path('', RedirectView.as_view(url='/admin/', permanent=False)),  # Redirect root to admin
 ]
 
 
