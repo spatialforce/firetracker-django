@@ -13,10 +13,10 @@ urlpatterns = [
     path('api/', include('Firetracker.urls')),
     
     # Root URL shows API documentation
-    path('', views.api_documentation, name='api-docs'),
+   path('', views.home, name='home'),
 ]
 
-# Serve static files during development
+
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
